@@ -1,0 +1,153 @@
+{
+	"name": "Transformation",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumnHome",
+					"description": "select a.season_end_year, a.Home, \ncase when a.HomeGoals>a.AwayGoals then 1 end win,\ncase when a.AwayGoals>a.HomeGoals then 1 end lose,\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\ncase when a.HomeGoals>a.AwayGoals then 3\n\twhen a.HomeGoals=a.AwayGoals then 1\n\telse 0\nend points,\na.homegoals goalscored,\na.AwayGoals goalagainst,\na.homegoals-a.AwayGoals goaldifference\n from plresults a\n"
+				},
+				{
+					"name": "select1",
+					"description": "\n\nRenaming derivedColumnAway to select2 with columns 'Season_End_Year, Team, win, lose, draw, points, goalscored, goalagainst, goaldifference'"
+				},
+				{
+					"name": "derivedColumnAway",
+					"description": "select \na.season_end_year, a.Away, \ncase when a.AwayGoals>a.HomeGoals then 1 end win,\ncase when a.HomeGoals>a.AwayGoals then 1 end lose,\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\ncase when a.AwayGoals>a.HomeGoals then 3\n\twhen a.HomeGoals=a.AwayGoals then 1\n\telse 0\nend points,\na.AwayGoals goalscored,\na.homegoals goalagainst,\na.AwayGoals-a.homegoals goaldifference\n from plresults a;"
+				},
+				{
+					"name": "select2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Season_End_Year as integer,",
+				"          Wk as integer,",
+				"          Date as date,",
+				"          Home as string,",
+				"          HomeGoals as integer,",
+				"          AwayGoals as integer,",
+				"          Away as string,",
+				"          FTR as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select a.season_end_year, a.Home, \\n\\ncase when a.HomeGoals>a.AwayGoals then 1 end win,\\n\\ncase when a.AwayGoals>a.HomeGoals then 1 end lose,\\n\\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\\n\\ncase when a.HomeGoals>a.AwayGoals then 3\\n\\n     when a.HomeGoals=a.AwayGoals then 1\\n\\n     else 0\\n\\nend points,\\n\\na.homegoals goalscored,\\n\\na.AwayGoals goalagainst,\\n\\na.homegoals-a.AwayGoals goaldifference\\n\\n from plresults a\\n\\n\\n\\nunion all\\n\\n\\n\\nselect \\n\\na.season_end_year, a.Away, \\n\\ncase when a.AwayGoals>a.HomeGoals then 1 end win,\\n\\ncase when a.HomeGoals>a.AwayGoals then 1 end lose,\\n\\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\\n\\ncase when a.AwayGoals>a.HomeGoals then 3\\n\\n     when a.HomeGoals=a.AwayGoals then 1\\n\\n     else 0\\n\\nend points,\\n\\na.AwayGoals goalscored,\\n\\na.homegoals goalagainst,\\n\\na.AwayGoals-a.homegoals goaldifference\\n\\n from plresults a;',",
+				"     format: 'query') ~> source1",
+				"source1 derive(season_end_year = Season_End_Year,",
+				"          Team = Home,",
+				"          win = compare(HomeGoals>AwayGoals,1),",
+				"          lose = compare(AwayGoals>HomeGoals,1),",
+				"          draw = compare(AwayGoals==HomeGoals,1),",
+				"          points = iif(HomeGoals>AwayGoals, 3, iif(HomeGoals==AwayGoals,1,0)),",
+				"          goalscored = HomeGoals,",
+				"          goalagainst = AwayGoals,",
+				"          goaldifference = HomeGoals-AwayGoals) ~> derivedColumnHome",
+				"derivedColumnHome select(mapColumn(",
+				"          season_end_year = derivedColumnHome@season_end_year,",
+				"          Home = Team,",
+				"          win,",
+				"          lose,",
+				"          draw,",
+				"          points,",
+				"          goalscored,",
+				"          goalagainst,",
+				"          goaldifference",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source1 derive(Season_End_Year = Season_End_Year,",
+				"          Team = Away,",
+				"          win = compare(AwayGoals>HomeGoals,1),",
+				"          lose = compare(HomeGoals>AwayGoals,1),",
+				"          draw = compare(AwayGoals==HomeGoals,1),",
+				"          points = iif(AwayGoals>HomeGoals, 3, iif(HomeGoals==AwayGoals,1,0)),",
+				"          goalscored = AwayGoals,",
+				"          goalagainst = HomeGoals,",
+				"          goaldifference = AwayGoals-HomeGoals) ~> derivedColumnAway",
+				"derivedColumnAway select(mapColumn(",
+				"          Season_End_Year,",
+				"          Team,",
+				"          win,",
+				"          lose,",
+				"          draw,",
+				"          points,",
+				"          goalscored,",
+				"          goalagainst,",
+				"          goaldifference",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Season_End_Year as integer,",
+				"          team as string,",
+				"          win as integer,",
+				"          loss as integer,",
+				"          draw as integer,",
+				"          points as integer,",
+				"          goalscored as integer,",
+				"          goalagainst as integer,",
+				"          goaldifference as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1",
+				"select2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Season_End_Year as integer,",
+				"          team as string,",
+				"          win as integer,",
+				"          loss as integer,",
+				"          draw as integer,",
+				"          points as integer,",
+				"          goalscored as integer,",
+				"          goalagainst as integer,",
+				"          goaldifference as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink2"
+			]
+		}
+	}
+}

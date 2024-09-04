@@ -1,0 +1,61 @@
+{
+	"name": "AzureSqlTable2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Season_End_Year",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "team",
+				"type": "varchar"
+			},
+			{
+				"name": "win",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "loss",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "draw",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "points",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "goalscored",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "goalagainst",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "goaldifference",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "plpoints"
+		}
+	}
+}
