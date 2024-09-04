@@ -1,0 +1,9 @@
+{
+	"name": "premierleague-datafactory",
+	"location": "canadacentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4af33a0f-1f30-4745-9c1c-09d8e836a60a",
+		"tenantId": "eb34f74a-58e7-4a8b-9e59-433e4c412757"
+	}
+}
