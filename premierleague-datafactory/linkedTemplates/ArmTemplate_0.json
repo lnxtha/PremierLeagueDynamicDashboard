@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
 		},
+		"AzureSqlDatabase2_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase2'"
+		},
 		"Batch_storage_linked_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'Batch_storage_linked'"
@@ -40,6 +44,18 @@
 			"defaultValue": "sqldb"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sshrestha"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sshresthapremierleague.database.windows.net"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sqldb"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "sshrestha"
 		},
@@ -81,6 +97,28 @@
 					"password": {
 						"type": "SecureString",
 						"value": "[parameters('AzureSqlDatabase1_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('AzureSqlDatabase2_properties_typeProperties_server')]",
+					"database": "[parameters('AzureSqlDatabase2_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('AzureSqlDatabase2_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('AzureSqlDatabase2_password')]"
 					}
 				}
 			},
@@ -223,6 +261,72 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Season_End_Year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "team",
+						"type": "varchar"
+					},
+					{
+						"name": "win",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "loss",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "draw",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "points",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "goalscored",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "goalagainst",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "goaldifference",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "plpoints"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase2')]"
 			]
 		},
 		{
@@ -559,6 +663,165 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Transformation')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable1",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable2",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable2",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumnHome",
+							"description": "select a.season_end_year, a.Home, \ncase when a.HomeGoals>a.AwayGoals then 1 end win,\ncase when a.AwayGoals>a.HomeGoals then 1 end lose,\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\ncase when a.HomeGoals>a.AwayGoals then 3\n\twhen a.HomeGoals=a.AwayGoals then 1\n\telse 0\nend points,\na.homegoals goalscored,\na.AwayGoals goalagainst,\na.homegoals-a.AwayGoals goaldifference\n from plresults a\n"
+						},
+						{
+							"name": "select1",
+							"description": "\n\nRenaming derivedColumnAway to select2 with columns 'Season_End_Year, Team, win, lose, draw, points, goalscored, goalagainst, goaldifference'"
+						},
+						{
+							"name": "derivedColumnAway",
+							"description": "select \na.season_end_year, a.Away, \ncase when a.AwayGoals>a.HomeGoals then 1 end win,\ncase when a.HomeGoals>a.AwayGoals then 1 end lose,\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\ncase when a.AwayGoals>a.HomeGoals then 3\n\twhen a.HomeGoals=a.AwayGoals then 1\n\telse 0\nend points,\na.AwayGoals goalscored,\na.homegoals goalagainst,\na.AwayGoals-a.homegoals goaldifference\n from plresults a;"
+						},
+						{
+							"name": "select2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Season_End_Year as integer,",
+						"          Wk as integer,",
+						"          Date as date,",
+						"          Home as string,",
+						"          HomeGoals as integer,",
+						"          AwayGoals as integer,",
+						"          Away as string,",
+						"          FTR as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'select a.season_end_year, a.Home, \\n\\ncase when a.HomeGoals>a.AwayGoals then 1 end win,\\n\\ncase when a.AwayGoals>a.HomeGoals then 1 end lose,\\n\\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\\n\\ncase when a.HomeGoals>a.AwayGoals then 3\\n\\n     when a.HomeGoals=a.AwayGoals then 1\\n\\n     else 0\\n\\nend points,\\n\\na.homegoals goalscored,\\n\\na.AwayGoals goalagainst,\\n\\na.homegoals-a.AwayGoals goaldifference\\n\\n from plresults a\\n\\n\\n\\nunion all\\n\\n\\n\\nselect \\n\\na.season_end_year, a.Away, \\n\\ncase when a.AwayGoals>a.HomeGoals then 1 end win,\\n\\ncase when a.HomeGoals>a.AwayGoals then 1 end lose,\\n\\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\\n\\ncase when a.AwayGoals>a.HomeGoals then 3\\n\\n     when a.HomeGoals=a.AwayGoals then 1\\n\\n     else 0\\n\\nend points,\\n\\na.AwayGoals goalscored,\\n\\na.homegoals goalagainst,\\n\\na.AwayGoals-a.homegoals goaldifference\\n\\n from plresults a;',",
+						"     format: 'query') ~> source1",
+						"source1 derive(season_end_year = Season_End_Year,",
+						"          Team = Home,",
+						"          win = compare(HomeGoals>AwayGoals,1),",
+						"          lose = compare(AwayGoals>HomeGoals,1),",
+						"          draw = compare(AwayGoals==HomeGoals,1),",
+						"          points = iif(HomeGoals>AwayGoals, 3, iif(HomeGoals==AwayGoals,1,0)),",
+						"          goalscored = HomeGoals,",
+						"          goalagainst = AwayGoals,",
+						"          goaldifference = HomeGoals-AwayGoals) ~> derivedColumnHome",
+						"derivedColumnHome select(mapColumn(",
+						"          season_end_year = derivedColumnHome@season_end_year,",
+						"          Home = Team,",
+						"          win,",
+						"          lose,",
+						"          draw,",
+						"          points,",
+						"          goalscored,",
+						"          goalagainst,",
+						"          goaldifference",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"source1 derive(Season_End_Year = Season_End_Year,",
+						"          Team = Away,",
+						"          win = compare(AwayGoals>HomeGoals,1),",
+						"          lose = compare(HomeGoals>AwayGoals,1),",
+						"          draw = compare(AwayGoals==HomeGoals,1),",
+						"          points = iif(AwayGoals>HomeGoals, 3, iif(HomeGoals==AwayGoals,1,0)),",
+						"          goalscored = AwayGoals,",
+						"          goalagainst = HomeGoals,",
+						"          goaldifference = AwayGoals-HomeGoals) ~> derivedColumnAway",
+						"derivedColumnAway select(mapColumn(",
+						"          Season_End_Year,",
+						"          Team,",
+						"          win,",
+						"          lose,",
+						"          draw,",
+						"          points,",
+						"          goalscored,",
+						"          goalagainst,",
+						"          goaldifference",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Season_End_Year as integer,",
+						"          team as string,",
+						"          win as integer,",
+						"          loss as integer,",
+						"          draw as integer,",
+						"          points as integer,",
+						"          goalscored as integer,",
+						"          goalagainst as integer,",
+						"          goaldifference as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1",
+						"select2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Season_End_Year as integer,",
+						"          team as string,",
+						"          win as integer,",
+						"          loss as integer,",
+						"          draw as integer,",
+						"          points as integer,",
+						"          goalscored as integer,",
+						"          goalagainst as integer,",
+						"          goaldifference as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink2"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable2')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/append_dataflow')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -661,6 +924,44 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "Data flow2",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Data flow1",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Transformation",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {},
+									"sink2": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
 				],
 				"policy": {
@@ -669,7 +970,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/append_dataflow')]"
+				"[concat(variables('factoryId'), '/dataflows/append_dataflow')]",
+				"[concat(variables('factoryId'), '/dataflows/Transformation')]"
 			]
 		}
 	]

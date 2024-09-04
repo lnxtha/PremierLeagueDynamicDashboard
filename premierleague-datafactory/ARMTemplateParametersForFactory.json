@@ -8,6 +8,9 @@
 		"AzureSqlDatabase1_password": {
 			"value": ""
 		},
+		"AzureSqlDatabase2_password": {
+			"value": ""
+		},
 		"Batch_storage_linked_connectionString": {
 			"value": ""
 		},
@@ -30,6 +33,15 @@
 			"value": "sqldb"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"value": "sshrestha"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_server": {
+			"value": "sshresthapremierleague.database.windows.net"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_database": {
+			"value": "sqldb"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_userName": {
 			"value": "sshrestha"
 		},
 		"Premierleagecsvfilea_properties_typeProperties_url": {
