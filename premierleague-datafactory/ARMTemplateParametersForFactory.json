@@ -11,6 +11,9 @@
 		"Premierleagecsvfilea_accountKey": {
 			"value": ""
 		},
+		"outputcsv_accountKey": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "sshresthapremierleage.database.windows.net"
 		},
@@ -21,6 +24,9 @@
 			"value": "sshrestha"
 		},
 		"Premierleagecsvfilea_properties_typeProperties_url": {
+			"value": "https://sshrestha.dfs.core.windows.net/"
+		},
+		"outputcsv_properties_typeProperties_url": {
 			"value": "https://sshrestha.dfs.core.windows.net/"
 		}
 	}

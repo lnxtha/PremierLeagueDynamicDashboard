@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'Premierleagecsvfilea'"
 		},
+		"outputcsv_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'outputcsv'"
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "sshresthapremierleage.database.windows.net"
@@ -28,6 +32,10 @@
 			"defaultValue": "sshrestha"
 		},
 		"Premierleagecsvfilea_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
+		},
+		"outputcsv_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		},
@@ -64,6 +72,9 @@
 					"Premierleagecsvfilea_accountKey": {
 						"value": "[parameters('Premierleagecsvfilea_accountKey')]"
 					},
+					"outputcsv_accountKey": {
+						"value": "[parameters('outputcsv_accountKey')]"
+					},
 					"AzureSqlDatabase1_properties_typeProperties_server": {
 						"value": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]"
 					},
@@ -75,6 +86,9 @@
 					},
 					"Premierleagecsvfilea_properties_typeProperties_url": {
 						"value": "[parameters('Premierleagecsvfilea_properties_typeProperties_url')]"
+					},
+					"outputcsv_properties_typeProperties_url": {
+						"value": "[parameters('outputcsv_properties_typeProperties_url')]"
 					}
 				}
 			},
