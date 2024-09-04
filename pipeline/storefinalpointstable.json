@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT season_end_year, team, win, loss, draw, points, goalscored, goalagainst, goaldifference \nFROM [dbo].[finalplpoints] ;\n",
+						"sqlReaderQuery": "SELECT season_end_year, team, gamesplayed, win, loss, draw, points, goalscored, goalagainst, goaldifference \nFROM [dbo].[finalplpoints] ;\n",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
