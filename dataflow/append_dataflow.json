@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "append_dataflow",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -9,10 +9,18 @@
 						"referenceName": "PremierLeague",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "appendablefile"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "premierleagueresults"
+				}
+			],
 			"transformations": [],
 			"scriptLines": [
 				"source(output(",
@@ -27,7 +35,27 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> source1"
+				"     ignoreNoFilesFound: false) ~> appendablefile",
+				"appendablefile sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Season_End_Year as integer,",
+				"          Wk as integer,",
+				"          Date as date,",
+				"          Home as string,",
+				"          HomeGoals as integer,",
+				"          AwayGoals as integer,",
+				"          Away as string,",
+				"          FTR as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> premierleagueresults"
 			]
 		}
 	}
