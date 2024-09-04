@@ -1,0 +1,37 @@
+{
+	"name": "batch_script_activity",
+	"properties": {
+		"activities": [
+			{
+				"name": "etl_batch",
+				"type": "Custom",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"command": "python3 webscraper2.py",
+					"resourceLinkedService": {
+						"referenceName": "Batch_storage_linked",
+						"type": "LinkedServiceReference"
+					},
+					"folderPath": "pythonscript",
+					"referenceObjects": {
+						"linkedServices": [],
+						"datasets": []
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "batch_acc_linked",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
