@@ -1,5 +1,5 @@
 {
-	"name": "DelimitedText2",
+	"name": "Appendable_pl_data",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "newcsvfiles",
