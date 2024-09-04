@@ -1,0 +1,55 @@
+{
+	"name": "output",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "outputcsv",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "preamier-league-matches"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Season_End_Year",
+				"type": "String"
+			},
+			{
+				"name": "Wk",
+				"type": "String"
+			},
+			{
+				"name": "Date",
+				"type": "String"
+			},
+			{
+				"name": "Home",
+				"type": "String"
+			},
+			{
+				"name": "HomeGoals",
+				"type": "String"
+			},
+			{
+				"name": "AwayGoals",
+				"type": "String"
+			},
+			{
+				"name": "Away",
+				"type": "String"
+			},
+			{
+				"name": "FTR",
+				"type": "String"
+			}
+		]
+	}
+}
