@@ -14,9 +14,6 @@
 		"Premierleagecsvfilea_accountKey": {
 			"value": ""
 		},
-		"batch_acc_linked_accessKey": {
-			"value": ""
-		},
 		"newcsvfiles_accountKey": {
 			"value": ""
 		},
@@ -27,7 +24,7 @@
 			"value": ""
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
-			"value": "sshresthapremierleage.database.windows.net"
+			"value": "sshresthapremierleague.database.windows.net"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_database": {
 			"value": "sqldb"
@@ -37,15 +34,6 @@
 		},
 		"Premierleagecsvfilea_properties_typeProperties_url": {
 			"value": "https://sshrestha.dfs.core.windows.net/"
-		},
-		"batch_acc_linked_properties_typeProperties_batchUri": {
-			"value": "https://shresthaplbatch.canadacentral.batch.azure.com"
-		},
-		"batch_acc_linked_properties_typeProperties_poolName": {
-			"value": "shrestha_pl_pool"
-		},
-		"batch_acc_linked_properties_typeProperties_accountName": {
-			"value": "shresthaplbatch"
 		},
 		"newcsvfiles_properties_typeProperties_url": {
 			"value": "https://shrestha.dfs.core.windows.net/"

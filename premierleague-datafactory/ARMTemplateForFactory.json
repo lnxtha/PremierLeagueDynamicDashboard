@@ -19,10 +19,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'Premierleagecsvfilea'"
 		},
-		"batch_acc_linked_accessKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accessKey' of 'batch_acc_linked'"
-		},
 		"newcsvfiles_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'newcsvfiles'"
@@ -37,7 +33,7 @@
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
-			"defaultValue": "sshresthapremierleage.database.windows.net"
+			"defaultValue": "sshresthapremierleague.database.windows.net"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_database": {
 			"type": "string",
@@ -50,18 +46,6 @@
 		"Premierleagecsvfilea_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
-		},
-		"batch_acc_linked_properties_typeProperties_batchUri": {
-			"type": "string",
-			"defaultValue": "https://shresthaplbatch.canadacentral.batch.azure.com"
-		},
-		"batch_acc_linked_properties_typeProperties_poolName": {
-			"type": "string",
-			"defaultValue": "shrestha_pl_pool"
-		},
-		"batch_acc_linked_properties_typeProperties_accountName": {
-			"type": "string",
-			"defaultValue": "shresthaplbatch"
 		},
 		"newcsvfiles_properties_typeProperties_url": {
 			"type": "string",
@@ -100,12 +84,12 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "appendable_data_dataflow",
+								"referenceName": "append_dataflow",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
+									"appendablefile": {},
+									"premierleagueresults": {}
 								}
 							},
 							"staging": {},
@@ -123,7 +107,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/appendable_data_dataflow')]"
+				"[concat(variables('factoryId'), '/dataflows/append_dataflow')]"
 			]
 		},
 		{
@@ -370,68 +354,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Appendable_pl_data')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "newcsvfiles",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "premier_league_results.csv",
-						"folderPath": "2024",
-						"fileSystem": "source"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Season_End_Year",
-						"type": "String"
-					},
-					{
-						"name": "wk",
-						"type": "String"
-					},
-					{
-						"name": "Date",
-						"type": "String"
-					},
-					{
-						"name": "Home",
-						"type": "String"
-					},
-					{
-						"name": "HomeGoals",
-						"type": "String"
-					},
-					{
-						"name": "AwayGoals",
-						"type": "String"
-					},
-					{
-						"name": "Away",
-						"type": "String"
-					},
-					{
-						"name": "FTR",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/newcsvfiles')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlTable1')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -532,8 +454,8 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "premier-league-matches.csv",
-						"fileSystem": "preamier-league-matches"
+						"fileName": "premier_league_results_append.csv",
+						"fileSystem": "append"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -632,31 +554,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/batch_acc_linked')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBatch",
-				"typeProperties": {
-					"batchUri": "[parameters('batch_acc_linked_properties_typeProperties_batchUri')]",
-					"poolName": "[parameters('batch_acc_linked_properties_typeProperties_poolName')]",
-					"accountName": "[parameters('batch_acc_linked_properties_typeProperties_accountName')]",
-					"linkedServiceName": {
-						"referenceName": "Batch_storage_linked",
-						"type": "LinkedServiceReference"
-					},
-					"accessKey": {
-						"type": "SecureString",
-						"value": "[parameters('batch_acc_linked_accessKey')]"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Batch_storage_linked')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/newcsvfiles')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -708,7 +605,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/appendable_data_dataflow')]",
+			"name": "[concat(parameters('factoryName'), '/append_dataflow')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -717,10 +614,10 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "Appendable_pl_data",
+								"referenceName": "PremierLeague",
 								"type": "DatasetReference"
 							},
-							"name": "source1"
+							"name": "appendablefile"
 						}
 					],
 					"sinks": [
@@ -729,18 +626,14 @@
 								"referenceName": "AzureSqlTable1",
 								"type": "DatasetReference"
 							},
-							"name": "sink1"
+							"name": "premierleagueresults"
 						}
 					],
-					"transformations": [
-						{
-							"name": "select1"
-						}
-					],
+					"transformations": [],
 					"scriptLines": [
 						"source(output(",
 						"          Season_End_Year as string,",
-						"          wk as string,",
+						"          Wk as string,",
 						"          Date as string,",
 						"          Home as string,",
 						"          HomeGoals as string,",
@@ -750,20 +643,8 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source1 select(mapColumn(",
-						"          Season_End_Year,",
-						"          wk,",
-						"          Date,",
-						"          Home,",
-						"          HomeGoals,",
-						"          AwayGoals,",
-						"          Away,",
-						"          FTR",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
+						"     ignoreNoFilesFound: false) ~> appendablefile",
+						"appendablefile sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          Season_End_Year as integer,",
@@ -782,12 +663,12 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError') ~> premierleagueresults"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Appendable_pl_data')]",
+				"[concat(variables('factoryId'), '/datasets/PremierLeague')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]"
 			]
 		}
