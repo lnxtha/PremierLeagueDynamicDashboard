@@ -11,9 +11,21 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
 		},
+		"Batch_storage_linked_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Batch_storage_linked'"
+		},
 		"Premierleagecsvfilea_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'Premierleagecsvfilea'"
+		},
+		"batch_acc_linked_accessKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessKey' of 'batch_acc_linked'"
+		},
+		"newcsvfiles_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'newcsvfiles'"
 		},
 		"output_data_accountKey": {
 			"type": "secureString",
@@ -39,6 +51,22 @@
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		},
+		"batch_acc_linked_properties_typeProperties_batchUri": {
+			"type": "string",
+			"defaultValue": "https://shresthaplbatch.canadacentral.batch.azure.com"
+		},
+		"batch_acc_linked_properties_typeProperties_poolName": {
+			"type": "string",
+			"defaultValue": "shrestha_pl_pool"
+		},
+		"batch_acc_linked_properties_typeProperties_accountName": {
+			"type": "string",
+			"defaultValue": "shresthaplbatch"
+		},
+		"newcsvfiles_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://shrestha.dfs.core.windows.net/"
+		},
 		"output_data_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
@@ -52,6 +80,52 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/batch_script_activity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "appendable_data_dataflow",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/appendable_data_dataflow')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/plresults')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -296,6 +370,68 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Appendable_pl_data')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "newcsvfiles",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "premier_league_results.csv",
+						"folderPath": "2024",
+						"fileSystem": "source"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Season_End_Year",
+						"type": "String"
+					},
+					{
+						"name": "wk",
+						"type": "String"
+					},
+					{
+						"name": "Date",
+						"type": "String"
+					},
+					{
+						"name": "Home",
+						"type": "String"
+					},
+					{
+						"name": "HomeGoals",
+						"type": "String"
+					},
+					{
+						"name": "AwayGoals",
+						"type": "String"
+					},
+					{
+						"name": "Away",
+						"type": "String"
+					},
+					{
+						"name": "FTR",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/newcsvfiles')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlTable1')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -466,6 +602,19 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Batch_storage_linked')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('Batch_storage_linked_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Premierleagecsvfilea')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -477,6 +626,48 @@
 					"accountKey": {
 						"type": "SecureString",
 						"value": "[parameters('Premierleagecsvfilea_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/batch_acc_linked')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBatch",
+				"typeProperties": {
+					"batchUri": "[parameters('batch_acc_linked_properties_typeProperties_batchUri')]",
+					"poolName": "[parameters('batch_acc_linked_properties_typeProperties_poolName')]",
+					"accountName": "[parameters('batch_acc_linked_properties_typeProperties_accountName')]",
+					"linkedServiceName": {
+						"referenceName": "Batch_storage_linked",
+						"type": "LinkedServiceReference"
+					},
+					"accessKey": {
+						"type": "SecureString",
+						"value": "[parameters('batch_acc_linked_accessKey')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Batch_storage_linked')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/newcsvfiles')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('newcsvfiles_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('newcsvfiles_accountKey')]"
 					}
 				}
 			},
@@ -515,6 +706,90 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/appendable_data_dataflow')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Appendable_pl_data",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable1",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Season_End_Year as string,",
+						"          wk as string,",
+						"          Date as string,",
+						"          Home as string,",
+						"          HomeGoals as string,",
+						"          AwayGoals as string,",
+						"          Away as string,",
+						"          FTR as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 select(mapColumn(",
+						"          Season_End_Year,",
+						"          wk,",
+						"          Date,",
+						"          Home,",
+						"          HomeGoals,",
+						"          AwayGoals,",
+						"          Away,",
+						"          FTR",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Season_End_Year as integer,",
+						"          Wk as integer,",
+						"          Date as date,",
+						"          Home as string,",
+						"          HomeGoals as integer,",
+						"          AwayGoals as integer,",
+						"          Away as string,",
+						"          FTR as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Appendable_pl_data')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]"
+			]
 		}
 	]
 }

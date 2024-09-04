@@ -11,9 +11,21 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
 		},
+		"Batch_storage_linked_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Batch_storage_linked'"
+		},
 		"Premierleagecsvfilea_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'Premierleagecsvfilea'"
+		},
+		"batch_acc_linked_accessKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessKey' of 'batch_acc_linked'"
+		},
+		"newcsvfiles_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'newcsvfiles'"
 		},
 		"output_data_accountKey": {
 			"type": "secureString",
@@ -38,6 +50,22 @@
 		"Premierleagecsvfilea_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
+		},
+		"batch_acc_linked_properties_typeProperties_batchUri": {
+			"type": "string",
+			"defaultValue": "https://shresthaplbatch.canadacentral.batch.azure.com"
+		},
+		"batch_acc_linked_properties_typeProperties_poolName": {
+			"type": "string",
+			"defaultValue": "shrestha_pl_pool"
+		},
+		"batch_acc_linked_properties_typeProperties_accountName": {
+			"type": "string",
+			"defaultValue": "shresthaplbatch"
+		},
+		"newcsvfiles_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://shrestha.dfs.core.windows.net/"
 		},
 		"output_data_properties_typeProperties_url": {
 			"type": "string",
@@ -77,14 +105,23 @@
 					"AzureSqlDatabase1_password": {
 						"value": "[parameters('AzureSqlDatabase1_password')]"
 					},
+					"Batch_storage_linked_connectionString": {
+						"value": "[parameters('Batch_storage_linked_connectionString')]"
+					},
 					"Premierleagecsvfilea_accountKey": {
 						"value": "[parameters('Premierleagecsvfilea_accountKey')]"
+					},
+					"newcsvfiles_accountKey": {
+						"value": "[parameters('newcsvfiles_accountKey')]"
 					},
 					"output_data_accountKey": {
 						"value": "[parameters('output_data_accountKey')]"
 					},
 					"outputcsv_accountKey": {
 						"value": "[parameters('outputcsv_accountKey')]"
+					},
+					"batch_acc_linked_accessKey": {
+						"value": "[parameters('batch_acc_linked_accessKey')]"
 					},
 					"AzureSqlDatabase1_properties_typeProperties_server": {
 						"value": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]"
@@ -98,11 +135,23 @@
 					"Premierleagecsvfilea_properties_typeProperties_url": {
 						"value": "[parameters('Premierleagecsvfilea_properties_typeProperties_url')]"
 					},
+					"newcsvfiles_properties_typeProperties_url": {
+						"value": "[parameters('newcsvfiles_properties_typeProperties_url')]"
+					},
 					"output_data_properties_typeProperties_url": {
 						"value": "[parameters('output_data_properties_typeProperties_url')]"
 					},
 					"outputcsv_properties_typeProperties_url": {
 						"value": "[parameters('outputcsv_properties_typeProperties_url')]"
+					},
+					"batch_acc_linked_properties_typeProperties_batchUri": {
+						"value": "[parameters('batch_acc_linked_properties_typeProperties_batchUri')]"
+					},
+					"batch_acc_linked_properties_typeProperties_poolName": {
+						"value": "[parameters('batch_acc_linked_properties_typeProperties_poolName')]"
+					},
+					"batch_acc_linked_properties_typeProperties_accountName": {
+						"value": "[parameters('batch_acc_linked_properties_typeProperties_accountName')]"
 					}
 				}
 			},

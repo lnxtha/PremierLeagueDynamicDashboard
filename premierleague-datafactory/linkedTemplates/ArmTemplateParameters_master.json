@@ -8,7 +8,16 @@
 		"AzureSqlDatabase1_password": {
 			"value": ""
 		},
+		"Batch_storage_linked_connectionString": {
+			"value": ""
+		},
 		"Premierleagecsvfilea_accountKey": {
+			"value": ""
+		},
+		"batch_acc_linked_accessKey": {
+			"value": ""
+		},
+		"newcsvfiles_accountKey": {
 			"value": ""
 		},
 		"output_data_accountKey": {
@@ -28,6 +37,18 @@
 		},
 		"Premierleagecsvfilea_properties_typeProperties_url": {
 			"value": "https://sshrestha.dfs.core.windows.net/"
+		},
+		"batch_acc_linked_properties_typeProperties_batchUri": {
+			"value": "https://shresthaplbatch.canadacentral.batch.azure.com"
+		},
+		"batch_acc_linked_properties_typeProperties_poolName": {
+			"value": "shrestha_pl_pool"
+		},
+		"batch_acc_linked_properties_typeProperties_accountName": {
+			"value": "shresthaplbatch"
+		},
+		"newcsvfiles_properties_typeProperties_url": {
+			"value": "https://shrestha.dfs.core.windows.net/"
 		},
 		"output_data_properties_typeProperties_url": {
 			"value": "https://sshrestha.dfs.core.windows.net/"
