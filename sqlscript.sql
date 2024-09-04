@@ -27,6 +27,7 @@ goaldifference int default 0
 create table finalplpoints (
 Season_End_Year int,
 team varchar(100),
+gamesplayed int default 0,
 win int default 0,
 loss int default 0,
 draw int default 0,
@@ -56,7 +57,7 @@ a.AwayGoals goalagainst,
 a.homegoals-a.AwayGoals goaldifference
  from plresults a
 
-union
+union all
 
 select 
 a.season_end_year, a.Away, 
@@ -74,8 +75,8 @@ a.AwayGoals-a.homegoals goaldifference
 
 
 insert into finalplpoints
-select season_end_year, team, sum(win), sum(loss), sum(draw), sum(points), sum(goalscored), sum(goalagainst), sum(goaldifference) from plpoints
-group by season_end_year, team;
+select season_end_year, team, count(*) gamesplayed,sum(win), sum(loss), sum(draw), sum(points), sum(goalscored), sum(goalagainst), sum(goaldifference) from plpoints
+group by season_end_year, team order by 1 desc,2;
 
 
 
