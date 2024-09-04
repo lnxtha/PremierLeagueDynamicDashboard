@@ -14,6 +14,9 @@
 		"outputcsv_accountKey": {
 			"value": ""
 		},
+		"output_data_accountKey": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "sshresthapremierleage.database.windows.net"
 		},
@@ -27,6 +30,9 @@
 			"value": "https://sshrestha.dfs.core.windows.net/"
 		},
 		"outputcsv_properties_typeProperties_url": {
+			"value": "https://sshrestha.dfs.core.windows.net/"
+		},
+		"output_data_properties_typeProperties_url": {
 			"value": "https://sshrestha.dfs.core.windows.net/"
 		}
 	}

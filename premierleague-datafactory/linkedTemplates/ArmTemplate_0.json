@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'outputcsv'"
 		},
+		"output_data_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'output_data'"
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "sshresthapremierleage.database.windows.net"
@@ -36,6 +40,10 @@
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		},
 		"outputcsv_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
+		},
+		"output_data_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		}
@@ -95,6 +103,23 @@
 					"accountKey": {
 						"type": "SecureString",
 						"value": "[parameters('outputcsv_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/output_data')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('output_data_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('output_data_accountKey')]"
 					}
 				}
 			},
@@ -220,12 +245,12 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/output')]",
+			"name": "[concat(parameters('factoryName'), '/DelimitedText1')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "outputcsv",
+					"referenceName": "output_data",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
@@ -233,6 +258,8 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
+						"fileName": "finalfile.csv",
+						"folderPath": "output",
 						"fileSystem": "preamier-league-matches"
 					},
 					"columnDelimiter": ",",
@@ -240,43 +267,10 @@
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
 				},
-				"schema": [
-					{
-						"name": "Season_End_Year",
-						"type": "String"
-					},
-					{
-						"name": "Wk",
-						"type": "String"
-					},
-					{
-						"name": "Date",
-						"type": "String"
-					},
-					{
-						"name": "Home",
-						"type": "String"
-					},
-					{
-						"name": "HomeGoals",
-						"type": "String"
-					},
-					{
-						"name": "AwayGoals",
-						"type": "String"
-					},
-					{
-						"name": "Away",
-						"type": "String"
-					},
-					{
-						"name": "FTR",
-						"type": "String"
-					}
-				]
+				"schema": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/outputcsv')]"
+				"[concat(variables('factoryId'), '/linkedServices/output_data')]"
 			]
 		},
 		{
@@ -456,7 +450,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy data1",
+						"name": "OutputPointsTableCSV",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -470,14 +464,15 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select * from [dbo].[finalplpoints]",
+								"sqlReaderQuery": "SELECT season_end_year, team, win, loss, draw, points, goalscored, goalagainst, goaldifference \nFROM [dbo].[finalplpoints] ;\n",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
 							"sink": {
 								"type": "DelimitedTextSink",
 								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "PreserveHierarchy"
 								},
 								"formatSettings": {
 									"type": "DelimitedTextWriteSettings",
@@ -504,7 +499,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "output",
+								"referenceName": "DelimitedText1",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -518,7 +513,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]",
-				"[concat(variables('factoryId'), '/datasets/output')]"
+				"[concat(variables('factoryId'), '/datasets/DelimitedText1')]"
 			]
 		}
 	]
