@@ -1,0 +1,18 @@
+{
+	"name": "batch_acc_linked",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBatch",
+		"typeProperties": {
+			"batchUri": "https://shresthaplbatch.canadacentral.batch.azure.com",
+			"poolName": "shrestha_pl_pool  ",
+			"accountName": "shresthaplbatch",
+			"linkedServiceName": {
+				"referenceName": "Batch_storage_linked",
+				"type": "LinkedServiceReference"
+			},
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDhDQkY3NUQwLTYyOUMtNEE2OS04MzVELUVFQUI2RDU1OEYyMV8zYjdlODI4Ni02M2NkLTRlNWQtOTk0OC02NzVjM2VlMmE3MzQiDQp9"
+		}
+	}
+}
