@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select * from [dbo].[finalplpoints]",
+						"sqlReaderQuery": "SELECT season_end_year, team, win, loss, draw, points, goalscored, goalagainst, goaldifference \nFROM [dbo].[finalplpoints]\n",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -50,7 +50,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "output",
+						"referenceName": "DelimitedText1",
 						"type": "DatasetReference"
 					}
 				]
