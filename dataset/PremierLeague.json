@@ -10,8 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "premier-league-matches.csv",
-				"fileSystem": "preamier-league-matches"
+				"fileName": "premier_league_results_append.csv",
+				"fileSystem": "append"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
