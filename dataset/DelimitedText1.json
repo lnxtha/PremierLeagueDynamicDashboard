@@ -10,7 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "finalplpoints.csv",
+				"fileName": "finalfile.csv",
+				"folderPath": "output",
 				"fileSystem": "preamier-league-matches"
 			},
 			"columnDelimiter": ",",
