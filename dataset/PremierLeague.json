@@ -1,0 +1,57 @@
+{
+	"name": "PremierLeague",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Premierleagecsvfilea",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "premier-league-matches.csv",
+				"fileSystem": "preamier-league-matches"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Season_End_Year",
+				"type": "String"
+			},
+			{
+				"name": "Wk",
+				"type": "String"
+			},
+			{
+				"name": "Date",
+				"type": "String"
+			},
+			{
+				"name": "Home",
+				"type": "String"
+			},
+			{
+				"name": "HomeGoals",
+				"type": "String"
+			},
+			{
+				"name": "AwayGoals",
+				"type": "String"
+			},
+			{
+				"name": "Away",
+				"type": "String"
+			},
+			{
+				"name": "FTR",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
