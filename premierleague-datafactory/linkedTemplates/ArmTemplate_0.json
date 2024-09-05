@@ -1092,8 +1092,8 @@
 						}
 					},
 					{
-						"name": "Ouput File",
-						"type": "Copy",
+						"name": "CalculatePoints_and_OutputFile_Activity",
+						"type": "ExecuteDataFlow",
 						"dependsOn": [
 							{
 								"activity": "Transform_and_load_PLPoints",
@@ -1111,47 +1111,22 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings",
-									"copyBehavior": "PreserveHierarchy"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".csv"
+							"dataflow": {
+								"referenceName": "CalculatePoints",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
 								}
 							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "AzureSqlTable2",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Final_CSV_Output",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
 				],
 				"policy": {
@@ -1162,8 +1137,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/append_dataflow')]",
 				"[concat(variables('factoryId'), '/dataflows/Transformation')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable2')]",
-				"[concat(variables('factoryId'), '/datasets/Final_CSV_Output')]"
+				"[concat(variables('factoryId'), '/dataflows/CalculatePoints')]"
 			]
 		}
 	]
