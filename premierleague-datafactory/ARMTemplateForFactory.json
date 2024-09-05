@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'Batch_storage_linked'"
 		},
+		"Final_CSV_Output_linkedservice_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'Final_CSV_Output_linkedservice'"
+		},
 		"Premierleagecsvfilea_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'Premierleagecsvfilea'"
@@ -34,10 +38,6 @@
 		"outputcsv_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'outputcsv'"
-		},
-		"Final_CSV_Output_linkedservice_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'Final_CSV_Output_linkedservice'"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
@@ -63,6 +63,10 @@
 			"type": "string",
 			"defaultValue": "sshrestha"
 		},
+		"Final_CSV_Output_linkedservice_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
+		},
 		"Premierleagecsvfilea_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
@@ -76,10 +80,6 @@
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		},
 		"outputcsv_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
-		},
-		"Final_CSV_Output_linkedservice_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		}
@@ -634,6 +634,33 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Final_CSV_Output')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Final_CSV_Output_linkedservice",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "output"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Final_CSV_Output_linkedservice')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PremierLeague')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -752,6 +779,23 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Final_CSV_Output_linkedservice')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('Final_CSV_Output_linkedservice_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('Final_CSV_Output_linkedservice_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Premierleagecsvfilea')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -818,6 +862,83 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CalculatePoints')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable2",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Final_CSV_Output",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"rejectedDataLinkedService": {
+								"referenceName": "Final_CSV_Output_linkedservice",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1",
+							"description": "select season_end_year, team, count(*) as gamesplayed,sum(win) as Wins, sum(loss) Losses, sum(draw) Draws, sum(points) Pts, sum(goalscored) GS, sum(goalagainst) GA, sum(goaldifference) GD \nfrom plpoints\ngroup by season_end_year, team order by 1 desc,2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Season_End_Year as integer,",
+						"          team as string,",
+						"          win as integer,",
+						"          loss as integer,",
+						"          draw as integer,",
+						"          points as integer,",
+						"          goalscored as integer,",
+						"          goalagainst as integer,",
+						"          goaldifference as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source1 aggregate(groupBy(Season_End_Year,",
+						"          team),",
+						"     gamesplayed = count(1),",
+						"          wins = sum(win),",
+						"          loss = sum(loss),",
+						"          draw = sum(draw),",
+						"          pts = sum(points),",
+						"          gs = sum(goalscored),",
+						"          ga = sum(goalagainst),",
+						"          gd = sum(goaldifference)) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable2')]",
+				"[concat(variables('factoryId'), '/datasets/Final_CSV_Output')]",
+				"[concat(variables('factoryId'), '/linkedServices/Final_CSV_Output_linkedservice')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Transformation')]",
@@ -1043,50 +1164,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/PremierLeague')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Final_CSV_Output_linkedservice')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('Final_CSV_Output_linkedservice_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('Final_CSV_Output_linkedservice_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Final_CSV_Output')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Final_CSV_Output_linkedservice",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileSystem": "output"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Final_CSV_Output_linkedservice')]"
 			]
 		}
 	]
