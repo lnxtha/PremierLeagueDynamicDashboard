@@ -87,7 +87,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Data flow1",
+						"name": "Load_into_PLResults_Activity",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -117,11 +117,11 @@
 						}
 					},
 					{
-						"name": "Data flow2",
+						"name": "Transform_and_load_PLPoints",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [
 							{
-								"activity": "Data flow1",
+								"activity": "Load_into_PLResults_Activity",
 								"dependencyConditions": [
 									"Completed"
 								]
@@ -810,8 +810,7 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: 'select a.season_end_year, a.Home, \\n\\ncase when a.HomeGoals>a.AwayGoals then 1 end win,\\n\\ncase when a.AwayGoals>a.HomeGoals then 1 end lose,\\n\\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\\n\\ncase when a.HomeGoals>a.AwayGoals then 3\\n\\n     when a.HomeGoals=a.AwayGoals then 1\\n\\n     else 0\\n\\nend points,\\n\\na.homegoals goalscored,\\n\\na.AwayGoals goalagainst,\\n\\na.homegoals-a.AwayGoals goaldifference\\n\\n from plresults a\\n\\n\\n\\nunion all\\n\\n\\n\\nselect \\n\\na.season_end_year, a.Away, \\n\\ncase when a.AwayGoals>a.HomeGoals then 1 end win,\\n\\ncase when a.HomeGoals>a.AwayGoals then 1 end lose,\\n\\ncase when a.HomeGoals=a.AwayGoals then 1 end draw,\\n\\ncase when a.AwayGoals>a.HomeGoals then 3\\n\\n     when a.HomeGoals=a.AwayGoals then 1\\n\\n     else 0\\n\\nend points,\\n\\na.AwayGoals goalscored,\\n\\na.homegoals goalagainst,\\n\\na.AwayGoals-a.homegoals goaldifference\\n\\n from plresults a;',",
-						"     format: 'query') ~> source1",
+						"     format: 'table') ~> source1",
 						"source1 derive(Season_End_Year = Season_End_Year,",
 						"          Team = Home,",
 						"          win = iif(HomeGoals>AwayGoals,1,0),",
