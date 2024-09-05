@@ -35,6 +35,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'outputcsv'"
 		},
+		"Final_CSV_Output_linkedservice_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'Final_CSV_Output_linkedservice'"
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "sshresthapremierleague.database.windows.net"
@@ -72,6 +76,10 @@
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		},
 		"outputcsv_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
+		},
+		"Final_CSV_Output_linkedservice_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		}
@@ -200,6 +208,23 @@
 					"accountKey": {
 						"type": "SecureString",
 						"value": "[parameters('outputcsv_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Final_CSV_Output_linkedservice')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('Final_CSV_Output_linkedservice_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('Final_CSV_Output_linkedservice_accountKey')]"
 					}
 				}
 			},
@@ -417,6 +442,33 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/Premierleagecsvfilea')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Final_CSV_Output')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Final_CSV_Output_linkedservice",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "output"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Final_CSV_Output_linkedservice')]"
 			]
 		},
 		{
@@ -961,6 +1013,68 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "Ouput File",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Transform_and_load_PLPoints",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "PreserveHierarchy"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".csv"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "AzureSqlTable2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Final_CSV_Output",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -970,7 +1084,9 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/append_dataflow')]",
-				"[concat(variables('factoryId'), '/dataflows/Transformation')]"
+				"[concat(variables('factoryId'), '/dataflows/Transformation')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable2')]",
+				"[concat(variables('factoryId'), '/datasets/Final_CSV_Output')]"
 			]
 		}
 	]

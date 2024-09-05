@@ -35,6 +35,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'outputcsv'"
 		},
+		"Final_CSV_Output_linkedservice_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'Final_CSV_Output_linkedservice'"
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "sshresthapremierleague.database.windows.net"
@@ -72,6 +76,10 @@
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		},
 		"outputcsv_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
+		},
+		"Final_CSV_Output_linkedservice_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sshrestha.dfs.core.windows.net/"
 		},
@@ -123,6 +131,9 @@
 					"outputcsv_accountKey": {
 						"value": "[parameters('outputcsv_accountKey')]"
 					},
+					"Final_CSV_Output_linkedservice_accountKey": {
+						"value": "[parameters('Final_CSV_Output_linkedservice_accountKey')]"
+					},
 					"AzureSqlDatabase1_properties_typeProperties_server": {
 						"value": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]"
 					},
@@ -152,6 +163,9 @@
 					},
 					"outputcsv_properties_typeProperties_url": {
 						"value": "[parameters('outputcsv_properties_typeProperties_url')]"
+					},
+					"Final_CSV_Output_linkedservice_properties_typeProperties_url": {
+						"value": "[parameters('Final_CSV_Output_linkedservice_properties_typeProperties_url')]"
 					}
 				}
 			},
