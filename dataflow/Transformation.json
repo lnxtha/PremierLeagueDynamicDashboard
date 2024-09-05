@@ -71,7 +71,7 @@
 				"          goalagainst = AwayGoals,",
 				"          goaldifference = HomeGoals-AwayGoals) ~> derivedColumnHome",
 				"derivedColumnHome select(mapColumn(",
-				"          Season_End_Year = derivedColumnHome@Season_End_Year,",
+				"          Season_End_Year,",
 				"          Home = Team,",
 				"          win,",
 				"          lose,",
